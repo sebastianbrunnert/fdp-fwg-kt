@@ -1,118 +1,74 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronDown, ChevronUp, Mail, Phone, MapPin, ArrowRight } from 'lucide-react';
+import { ChevronDown, ChevronUp, Mail, Phone, MapPin, ArrowRight, CheckCircle, XCircle } from 'lucide-react';
 import Navigation from '../components/Navigation';
 import Footer from '../components/Footer';
+import { API_BASE_URL, getImageUrl } from '../utils/api';
 
 const HomePage = () => {
     const [showExtendedFraktion, setShowExtendedFraktion] = useState(false);
     const [formData, setFormData] = useState({ name: '', email: '', message: '' });
+    const [news, setNews] = useState([]);
+    const [members, setMembers] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [submitStatus, setSubmitStatus] = useState(null); // 'success', 'error', or null
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        console.log('Form submitted:', formData);
-        alert('Nachricht wurde gesendet!');
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    const fetchData = async () => {
+        try {
+            const [newsRes, membersRes] = await Promise.all([
+                fetch(`${API_BASE_URL}/api/news`),
+                fetch(`${API_BASE_URL}/api/members`)
+            ]);
+
+            const newsData = await newsRes.json();
+            const membersData = await membersRes.json();
+
+            setNews(newsData.slice(0, 4));
+            setMembers(membersData);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const news = [
-        {
-            id: 1,
-            title: "Digitalisierung im Kreistag: Neue Initiativen für moderne Verwaltung",
-            date: "29.11.2025",
-            excerpt: "Die FDP-FWG Fraktion setzt sich für eine umfassende Digitalisierung der Verwaltungsprozesse ein. Bürgerdienste sollen künftig auch online verfügbar sein.",
-            image: "https://images.unsplash.com/photo-1541872703-74c5e44368f9?w=800&q=80"
-        },
-        {
-            id: 2,
-            title: "Bildungsoffensive: Mehr Investitionen in Schulen und Kitas",
-            date: "25.11.2025",
-            excerpt: "Unsere Fraktion fordert verstärkte Investitionen in die Bildungsinfrastruktur. Moderne Lernumgebungen sind der Schlüssel für die Zukunft unserer Kinder.",
-            image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&q=80"
-        },
-        {
-            id: 3,
-            title: "Wirtschaftsförderung: Unterstützung für lokale Unternehmen",
-            date: "20.11.2025",
-            excerpt: "Die FDP-FWG Fraktion präsentiert ein umfassendes Konzept zur Förderung des Mittelstands und der Startups in Minden-Lübbecke.",
-            image: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&q=80"
-        },
-        {
-            id: 4,
-            title: "Verkehrspolitik: Verbesserung der Infrastruktur im Kreis",
-            date: "15.11.2025",
-            excerpt: "Neue Konzepte für bessere Verkehrsanbindungen und nachhaltige Mobilität stehen im Fokus unserer aktuellen Arbeit im Kreistag.",
-            image: "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=800&q=80"
-        }
-    ];
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+        setSubmitStatus(null);
 
-    const kernfraktion = [
-        {
-            name: "Felix Abruszat",
-            role: "Fraktionsvorsitzender (FDP)",
-            phone: "01515 / 633 7195",
-            email: "f.abruszat@fdp-fwg-kt.de",
-            image: "persons/Abruszat.jpg"
-        },
-        {
-            name: "Claudia Herziger-Möhlmann",
-            role: "Stellv. Fraktionsvorsitzende (FWG)",
-            phone: "0174 / 988 8391",
-            email: "c.herziger-moehlmann@fdp-fwg-kt.de",
-            image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&q=80"
-        },
-        {
-            name: "Lars Bunge",
-            role: "Kreistagsmitglied (FDP)",
-            phone: "0160 / 118 4642",
-            email: "l.bunge@fdp-fwg-kt.de",
-            image: "persons/Bunge.jpg"
-        },
-        {
-            name: "Susanne Engelking",
-            role: "Kreistagsmitglied (FDP)",
-            phone: "0176 / 2941 2054",
-            email: "s.engelking@fdp-fwg-kt.de",
-            image: "persons/Engelking.jpg"
-        },
-        {
-            name: "Martin Klee",
-            role: "Kreistagsmitglied (FWG)",
-            phone: "0170 / 938 8819",
-            email: "m.klee@fdp-fwg-kt.de",
-            image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&q=80"
-        },
-        {
-            name: "Julius Missner",
-            role: "Fraktionsgeschäftsführer",
-            phone: "Lorem Ipsum",
-            email: "info@fdp-fwg-kt.de",
-            image: "persons/Missner.jpg"
-        }
-    ];
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/contact`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
 
-    const erweiterteFraktion = [
-        {
-            name: "Lorem Ipsum",
-            role: "Sachkundiger Bürger (Lorem Ipsum)",
-            phone: "Lorem Ipsum",
-            email: "Lorem Ipsum",
-            image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&q=80"
-        },
-        {
-            name: "Lorem Ipsum",
-            role: "Sachkundiger Bürger (Lorem Ipsum)",
-            phone: "Lorem Ipsum",
-            email: "Lorem Ipsum",
-            image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&q=80"
-        },
-        {
-            name: "Lorem Ipsum",
-            role: "Sachkundiger Bürger (Lorem Ipsum)",
-            phone: "Lorem Ipsum",
-            email: "Lorem Ipsum",
-            image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&q=80"
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                setSubmitStatus('success');
+                setFormData({ name: '', email: '', message: '' });
+                // Auto-hide success message after 5 seconds
+                setTimeout(() => setSubmitStatus(null), 5000);
+            } else {
+                setSubmitStatus('error');
+            }
+        } catch (error) {
+            console.error('Error submitting form:', error);
+            setSubmitStatus('error');
+        } finally {
+            setIsSubmitting(false);
         }
-    ];
+    };
+
+    const kernfraktion = members.filter(m => m.is_core_member);
+    const erweiterteFraktion = members.filter(m => !m.is_core_member);
 
     return (
         <div className="min-h-screen bg-white">
@@ -326,30 +282,40 @@ const HomePage = () => {
                             Aktuelles aus der Fraktion
                         </h2>
                     </div>
-                    <div className="grid lg:grid-cols-2 gap-8">
-                        {news.map((item) => (
-                            <div key={item.id} className="bg-white border border-gray-200">
-                                <div className="relative overflow-hidden" style={{ height: '280px' }}>
-                                    <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
-                                    <div className="absolute top-4 left-4 px-4 py-2 bg-orange-600 font-bold text-white text-sm">
-                                        {item.date}
+                    {loading ? (
+                        <div className="text-center py-12">
+                            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-pink-600"></div>
+                        </div>
+                    ) : (
+                        <div className="grid lg:grid-cols-2 gap-8">
+                            {news.map((item) => (
+                                <div key={item.id} className="bg-white border border-gray-200">
+                                    <div className="relative overflow-hidden" style={{ height: '280px' }}>
+                                        <img
+                                            src={getImageUrl(item.image)}
+                                            alt={item.title}
+                                            className="w-full h-full object-cover"
+                                        />
+                                        <div className="absolute top-4 left-4 px-4 py-2 bg-orange-600 font-bold text-white text-sm">
+                                            {new Date(item.date).toLocaleDateString('de-DE')}
+                                        </div>
+                                    </div>
+                                    <div className="p-8">
+                                        <h3 className="text-2xl font-bold text-gray-900 mb-4 leading-tight">
+                                            {item.title}
+                                        </h3>
+                                        <p className="text-gray-700 mb-6 leading-relaxed">
+                                            {item.excerpt}
+                                        </p>
+                                        <Link to={`/news/${item.id}`} className="inline-flex items-center font-semibold text-pink-600">
+                                            Weiterlesen
+                                            <ArrowRight className="ml-2 w-5 h-5" />
+                                        </Link>
                                     </div>
                                 </div>
-                                <div className="p-8">
-                                    <h3 className="text-2xl font-bold text-gray-900 mb-4 leading-tight">
-                                        {item.title}
-                                    </h3>
-                                    <p className="text-gray-700 mb-6 leading-relaxed">
-                                        {item.excerpt}
-                                    </p>
-                                    <Link to={`/news/${item.id}`} className="inline-flex items-center font-semibold text-pink-600">
-                                        Weiterlesen
-                                        <ArrowRight className="ml-2 w-5 h-5" />
-                                    </Link>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                    )}
                     <div className="text-center mt-16">
                         <Link to="/news" className="px-10 py-4 font-semibold border-2 border-gray-900 text-gray-900 inline-block hover:bg-gray-900 hover:text-white transition-colors">
                             ALLE NACHRICHTEN
@@ -373,7 +339,7 @@ const HomePage = () => {
                                 <div key={index} className="text-center">
                                     <div className="relative inline-block mb-6">
                                         <img
-                                            src={member.image}
+                                            src={getImageUrl(member.image)}
                                             alt={member.name}
                                             className="relative w-48 h-48 object-cover border-2 border-gray-200"
                                         />
@@ -419,7 +385,7 @@ const HomePage = () => {
                                     <div key={index} className="text-center">
                                         <div className="relative inline-block mb-6">
                                             <img
-                                                src={member.image}
+                                                src={getImageUrl(member.image)}
                                                 alt={member.name}
                                                 className="relative w-48 h-48 object-cover border-2 border-gray-200"
                                             />
@@ -486,6 +452,28 @@ const HomePage = () => {
                             </div>
                         </div>
                         <div className="bg-white p-10 border border-gray-200">
+                            {/* Success Message */}
+                            {submitStatus === 'success' && (
+                                <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded flex items-start">
+                                    <CheckCircle className="w-5 h-5 text-green-600 mr-3 mt-0.5 flex-shrink-0" />
+                                    <div>
+                                        <p className="font-bold text-green-900">Nachricht erfolgreich gesendet!</p>
+                                        <p className="text-sm text-green-700 mt-1">Vielen Dank für Ihre Nachricht. Wir werden uns schnellstmöglich bei Ihnen melden.</p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Error Message */}
+                            {submitStatus === 'error' && (
+                                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded flex items-start">
+                                    <XCircle className="w-5 h-5 text-red-600 mr-3 mt-0.5 flex-shrink-0" />
+                                    <div>
+                                        <p className="font-bold text-red-900">Fehler beim Senden</p>
+                                        <p className="text-sm text-red-700 mt-1">Ihre Nachricht konnte nicht gesendet werden. Bitte versuchen Sie es später erneut.</p>
+                                    </div>
+                                </div>
+                            )}
+
                             <div className="space-y-6">
                                 <div>
                                     <label className="block text-sm font-bold mb-3 text-gray-900">
@@ -496,6 +484,7 @@ const HomePage = () => {
                                         value={formData.name}
                                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                         className="w-full px-5 py-4 border-2 border-gray-200 focus:border-pink-600 focus:outline-none"
+                                        disabled={isSubmitting}
                                     />
                                 </div>
                                 <div>
@@ -507,6 +496,7 @@ const HomePage = () => {
                                         value={formData.email}
                                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                         className="w-full px-5 py-4 border-2 border-gray-200 focus:border-pink-600 focus:outline-none"
+                                        disabled={isSubmitting}
                                     />
                                 </div>
                                 <div>
@@ -518,13 +508,15 @@ const HomePage = () => {
                                         value={formData.message}
                                         onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                                         className="w-full px-5 py-4 border-2 border-gray-200 focus:border-pink-600 focus:outline-none"
+                                        disabled={isSubmitting}
                                     ></textarea>
                                 </div>
                                 <button
                                     onClick={handleSubmit}
-                                    className="w-full py-5 font-bold text-white bg-pink-600"
+                                    className="w-full py-5 font-bold text-white bg-pink-600 hover:bg-pink-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                                    disabled={isSubmitting}
                                 >
-                                    Nachricht senden
+                                    {isSubmitting ? 'Wird gesendet...' : 'Nachricht senden'}
                                 </button>
                             </div>
                         </div>

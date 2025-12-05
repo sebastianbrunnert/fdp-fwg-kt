@@ -1,84 +1,29 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Calendar, ArrowLeft } from 'lucide-react';
 import Navigation from '../components/Navigation';
 import Footer from '../components/Footer';
+import { API_BASE_URL, getImageUrl, formatDate } from '../utils/api';
 
 const AllNews = () => {
-    const allNews = [
-        {
-            id: 1,
-            title: "Digitalisierung im Kreistag: Neue Initiativen für moderne Verwaltung",
-            date: "29.11.2025",
-            excerpt: "Die FDP-FWG Fraktion setzt sich für eine umfassende Digitalisierung der Verwaltungsprozesse ein. Bürgerdienste sollen künftig auch online verfügbar sein.",
-            image: "https://images.unsplash.com/photo-1541872703-74c5e44368f9?w=800&q=80",
-            category: "Digitalisierung"
-        },
-        {
-            id: 2,
-            title: "Bildungsoffensive: Mehr Investitionen in Schulen und Kitas",
-            date: "25.11.2025",
-            excerpt: "Unsere Fraktion fordert verstärkte Investitionen in die Bildungsinfrastruktur. Moderne Lernumgebungen sind der Schlüssel für die Zukunft unserer Kinder.",
-            image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&q=80",
-            category: "Bildung"
-        },
-        {
-            id: 3,
-            title: "Wirtschaftsförderung: Unterstützung für lokale Unternehmen",
-            date: "20.11.2025",
-            excerpt: "Die FDP-FWG Fraktion präsentiert ein umfassendes Konzept zur Förderung des Mittelstands und der Startups in Minden-Lübbecke.",
-            image: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&q=80",
-            category: "Wirtschaft"
-        },
-        {
-            id: 4,
-            title: "Verkehrspolitik: Verbesserung der Infrastruktur im Kreis",
-            date: "15.11.2025",
-            excerpt: "Neue Konzepte für bessere Verkehrsanbindungen und nachhaltige Mobilität stehen im Fokus unserer aktuellen Arbeit im Kreistag.",
-            image: "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=800&q=80",
-            category: "Verkehr"
-        },
-        {
-            id: 5,
-            title: "Klimaschutz konkret: Energieeffizienz in öffentlichen Gebäuden",
-            date: "10.11.2025",
-            excerpt: "Die Fraktion hat einen Antrag zur energetischen Sanierung aller kreiseigenen Gebäude eingebracht. Klimaschutz beginnt vor der eigenen Haustür.",
-            image: "https://images.unsplash.com/photo-1497436072909-60f360e1d4b1?w=800&q=80",
-            category: "Klimaschutz"
-        },
-        {
-            id: 6,
-            title: "Bürgerbeteiligung stärken: Neue Formate für Dialog",
-            date: "05.11.2025",
-            excerpt: "Mit innovativen Beteiligungsformaten wollen wir die Bürgerinnen und Bürger noch stärker in politische Entscheidungsprozesse einbinden.",
-            image: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&q=80",
-            category: "Bürgerbeteiligung"
-        },
-        {
-            id: 7,
-            title: "Kulturförderung: Investitionen in die kreative Szene",
-            date: "01.11.2025",
-            excerpt: "Kunst und Kultur sind wichtige Standortfaktoren. Die FDP-FWG Fraktion setzt sich für bessere Förderung lokaler Kulturschaffender ein.",
-            image: "https://images.unsplash.com/photo-1506157786151-b8491531f063?w=800&q=80",
-            category: "Kultur"
-        },
-        {
-            id: 8,
-            title: "Gesundheitsversorgung: Sicherung der medizinischen Infrastruktur",
-            date: "28.10.2025",
-            excerpt: "Die Sicherstellung einer wohnortnahen medizinischen Versorgung ist ein zentrales Anliegen unserer Fraktion. Wir setzen uns für den Erhalt und Ausbau der Gesundheitseinrichtungen ein.",
-            image: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800&q=80",
-            category: "Gesundheit"
-        },
-        {
-            id: 9,
-            title: "Tourismus fördern: Potenziale der Region besser nutzen",
-            date: "22.10.2025",
-            excerpt: "Minden-Lübbecke hat touristisch viel zu bieten. Mit gezielten Maßnahmen wollen wir die Region als attraktives Reiseziel noch bekannter machen.",
-            image: "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&q=80",
-            category: "Tourismus"
+    const [allNews, setAllNews] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetchNews();
+    }, []);
+
+    const fetchNews = async () => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/news`);
+            const data = await response.json();
+            setAllNews(data);
+        } catch (error) {
+            console.error('Error fetching news:', error);
+        } finally {
+            setLoading(false);
         }
-    ];
+    };
 
     return (
         <div className="min-h-screen bg-white">
@@ -104,42 +49,48 @@ const AllNews = () => {
             {/* News Grid */}
             <section className="py-24 bg-white">
                 <div className="max-w-7xl mx-auto px-6 lg:px-12">
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {allNews.map((item) => (
-                            <Link
-                                key={item.id}
-                                to={`/news/${item.id}`}
-                                className="bg-white border border-gray-200"
-                            >
-                                <div className="relative overflow-hidden" style={{ height: '220px' }}>
-                                    <img
-                                        src={item.image}
-                                        alt={item.title}
-                                        className="w-full h-full object-cover"
-                                    />
-                                    <div className="absolute top-4 left-4 px-3 py-1 bg-orange-600 font-bold text-white text-xs">
-                                        {item.category}
+                    {loading ? (
+                        <div className="text-center py-12">
+                            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-pink-600"></div>
+                        </div>
+                    ) : (
+                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                            {allNews.map((item) => (
+                                <Link
+                                    key={item.id}
+                                    to={`/news/${item.id}`}
+                                    className="bg-white border border-gray-200"
+                                >
+                                    <div className="relative overflow-hidden" style={{ height: '220px' }}>
+                                        <img
+                                            src={getImageUrl(item.image)}
+                                            alt={item.title}
+                                            className="w-full h-full object-cover"
+                                        />
+                                        <div className="absolute top-4 left-4 px-3 py-1 bg-orange-600 font-bold text-white text-xs">
+                                            {item.category}
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="p-6">
-                                    <div className="flex items-center text-sm text-gray-600 mb-3">
-                                        <Calendar className="w-4 h-4 mr-2" />
-                                        {item.date}
+                                    <div className="p-6">
+                                        <div className="flex items-center text-sm text-gray-600 mb-3">
+                                            <Calendar className="w-4 h-4 mr-2" />
+                                            {formatDate(item.date)}
+                                        </div>
+                                        <h3 className="text-xl font-bold text-gray-900 mb-3 leading-tight line-clamp-2">
+                                            {item.title}
+                                        </h3>
+                                        <p className="text-gray-700 mb-4 leading-relaxed line-clamp-3">
+                                            {item.excerpt}
+                                        </p>
+                                        <div className="inline-flex items-center font-semibold text-pink-600">
+                                            Weiterlesen
+                                            <ArrowRight className="ml-2 w-4 h-4" />
+                                        </div>
                                     </div>
-                                    <h3 className="text-xl font-bold text-gray-900 mb-3 leading-tight line-clamp-2">
-                                        {item.title}
-                                    </h3>
-                                    <p className="text-gray-700 mb-4 leading-relaxed line-clamp-3">
-                                        {item.excerpt}
-                                    </p>
-                                    <div className="inline-flex items-center font-semibold text-pink-600">
-                                        Weiterlesen
-                                        <ArrowRight className="ml-2 w-4 h-4" />
-                                    </div>
-                                </div>
-                            </Link>
-                        ))}
-                    </div>
+                                </Link>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </section>
 
